@@ -7,6 +7,7 @@ import IncidentHistory from '../components/IncidentHistory';
 import PlayerRecognition from '../components/PlayerRecognition';
 import CameraView from '../components/CameraView';
 import VarScreen from '../components/VarScreen';
+import FinalReportDialog from '../components/FinalReportDialog';
 import { useIsMobile } from '../hooks/use-mobile';
 
 const Index = () => {
@@ -18,6 +19,10 @@ const Index = () => {
         <Header />
         
         <div className="container mx-auto py-3 px-2 md:py-6 md:px-4">
+          <div className="flex justify-end mb-4">
+            <FinalReportDialog />
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <CameraView />
             <VarScreen />
