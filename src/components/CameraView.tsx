@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Camera, Power, PauseCircle } from 'lucide-react';
@@ -8,39 +8,52 @@ const CameraView: React.FC = () => {
   const { language, translations, cameraActive, setCameraActive } = useAppContext();
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraReady(false);
+    setCameraActive(false);
+  };
   
   const toggleCamera = async () => {
     if (!cameraActive) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment' }
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
         });
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          streamRef.current = stream;
           setCameraReady(true);
+          setCameraActive(true);
         }
-        
-        setCameraActive(true);
       } catch (error) {
         console.error('Error accessing camera:', error);
+        stopCamera();
       }
     } else {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        const tracks = stream.getTracks();
-        
-        tracks.forEach(track => {
-          track.stop();
-        });
-        
-        videoRef.current.srcObject = null;
-        setCameraReady(false);
-      }
-      
-      setCameraActive(false);
+      stopCamera();
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
 
   return (
     <div className="bg-black bg-opacity-30 rounded-xl overflow-hidden">
@@ -74,7 +87,8 @@ const CameraView: React.FC = () => {
           <video 
             ref={videoRef} 
             autoPlay 
-            playsInline 
+            playsInline
+            muted
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
