@@ -5,7 +5,9 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useAppContext } from '../context/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ScanFace, Camera, Shirt } from 'lucide-react';
+import { Camera, Shirt } from 'lucide-react';
+import CameraView from '../components/CameraView';
+import PlayerRecognition from '../components/PlayerRecognition';
 
 const CardIssuance: React.FC = () => {
   const { language, translations, cameraActive, setCameraActive } = useAppContext();
@@ -22,60 +24,25 @@ const CardIssuance: React.FC = () => {
             {language === 'ar' ? 'إشهار البطاقة والتعرف على اللاعب' : 'Card Issuance & Player Recognition'}
           </h1>
           
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Camera className="mr-3" size={24} />
-                <span>{translations.camera[language]}</span>
-              </div>
-              <Button 
-                variant={cameraActive ? 'destructive' : 'default'}
-                onClick={() => setCameraActive(!cameraActive)}
-              >
-                {cameraActive 
-                  ? translations.deactivate[language] 
-                  : translations.activate[language]
-                }
-              </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="aspect-[4/3] relative">
+              <CameraView />
             </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <ScanFace className="mr-3" size={24} />
-                <span>{translations.playerRecognition[language]}</span>
-              </div>
-              <Button 
-                variant="outline"
-                disabled={!cameraActive}
-              >
-                {translations.capture[language]}
-              </Button>
+            <div>
+              <PlayerRecognition />
             </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Shirt className="mr-3" size={24} />
-                <span>{translations.jerseyRecognition[language]}</span>
-              </div>
-              <Button 
-                variant="secondary"
-                disabled={!cameraActive}
-              >
-                {translations.scan[language] ?? 'Scan'}
-              </Button>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium mb-2">
-                {language === 'ar' ? 'سبب إشهار البطاقة' : 'Card Issuance Reason'}
-              </label>
-              <Textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل سبب إشهار البطاقة...' : 'Enter reason for card issuance...'}
-                className="bg-black bg-opacity-30 text-white resize-none h-32 placeholder:text-gray-400"
-              />
-            </div>
+          </div>
+          
+          <div className="mt-6">
+            <label className="block text-sm font-medium mb-2">
+              {language === 'ar' ? 'سبب إشهار البطاقة' : 'Card Issuance Reason'}
+            </label>
+            <Textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder={language === 'ar' ? 'أدخل سبب إشهار البطاقة...' : 'Enter reason for card issuance...'}
+              className="bg-black bg-opacity-30 text-white resize-none h-32 placeholder:text-gray-400"
+            />
           </div>
           
           <div className="flex gap-4 mt-6">
