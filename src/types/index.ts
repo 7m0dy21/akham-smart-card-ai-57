@@ -33,6 +33,14 @@ export interface CardIncident {
   decisionConfidence?: number;
 }
 
+export interface VarAnalysis {
+  isReviewing: boolean;
+  currentIncident: CardIncident | null;
+  recommendedDecision: CardType;
+  confidence: number;
+  ruleReference: string | null;
+}
+
 export interface Match {
   id: string;
   homeTeam: Team;
@@ -46,6 +54,7 @@ export interface Match {
     homeScore: number;
     awayScore: number;
   };
+  varAnalysis?: VarAnalysis;
   finalReport?: {
     summary: string;
     incidentReviews: CardIncident[];
@@ -54,10 +63,5 @@ export interface Match {
       timeEfficiency: number;
       consistencyScore: number;
     }
-  };
-  varAnalysis?: {
-    isReviewing: boolean;
-    currentIncident?: CardIncident;
-    recommendedDecision?: string;
   };
 }

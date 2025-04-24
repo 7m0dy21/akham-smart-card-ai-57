@@ -34,6 +34,13 @@ const mockMatch: Match = {
   score: {
     homeScore: 0,
     awayScore: 0,
+  },
+  varAnalysis: {
+    isReviewing: false,
+    currentIncident: null,
+    recommendedDecision: null,
+    confidence: 0,
+    ruleReference: null
   }
 };
 
@@ -202,26 +209,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const issueCard = (player: Player, cardType: CardType, reason?: string) => {
     if (!player || !cardType) return;
     
+    // Simulate VAR analysis
+    const confidence = Math.random() * 0.3 + 0.7; // Random confidence between 70% and 100%
+    const ruleReference = 'المادة 12 - الأخطاء وسوء السلوك';
+    
+    const aiAnalysis = language === 'ar' 
+      ? `تم تحليل الحالة بنسبة ثقة ${(confidence * 100).toFixed(1)}%: مخالفة مستحقة للبطاقة ${cardType === 'yellow' ? 'الصفراء' : 'الحمراء'} وفقاً لقوانين اللعبة ${ruleReference}`
+      : `Incident analyzed with ${(confidence * 100).toFixed(1)}% confidence: Violation warranting a ${cardType === 'yellow' ? 'Yellow' : 'Red'} card according to ${ruleReference}`;
+    
     const newIncident: CardIncident = {
       id: Date.now().toString(),
       timestamp: new Date(),
       player,
       cardType,
       reason,
-      aiAnalysis: 'تم تحليل الحالة: مخالفة مستحقة للبطاقة وفقًا لقوانين اللعبة المادة 12',
+      aiAnalysis,
       videoEvidence: 'video-evidence-url',
       recommendedCard: cardType,
-      ruleReference: 'المادة 12 - الأخطاء وسوء السلوك',
-      decisionConfidence: 0.92
+      ruleReference,
+      decisionConfidence: confidence
     };
     
+    // Update match with new incident and VAR analysis
     setMatch(prevMatch => ({
       ...prevMatch,
-      incidents: [newIncident, ...prevMatch.incidents]
+      incidents: [newIncident, ...prevMatch.incidents],
+      varAnalysis: {
+        isReviewing: true,
+        currentIncident: newIncident,
+        recommendedDecision: cardType,
+        confidence,
+        ruleReference
+      }
     }));
     
-    setRecognizedPlayer(null);
-    setSelectedCardType(null);
+    // Reset state after 3 seconds
+    setTimeout(() => {
+      setRecognizedPlayer(null);
+      setSelectedCardType(null);
+      setMatch(prevMatch => ({
+        ...prevMatch,
+        varAnalysis: {
+          isReviewing: false,
+          currentIncident: null,
+          recommendedDecision: null,
+          confidence: 0,
+          ruleReference: null
+        }
+      }));
+    }, 3000);
   };
   
   return (
