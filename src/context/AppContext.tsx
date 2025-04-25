@@ -22,6 +22,60 @@ const mockAwayTeam: Team = {
   ]
 };
 
+const mockIncidents: CardIncident[] = [
+  {
+    id: '1',
+    timestamp: new Date(2025, 3, 25, 20, 15, 0),
+    player: {
+      id: '2',
+      name: 'ياسر الشهراني',
+      jerseyNumber: 13,
+      team: 'الهلال'
+    },
+    cardType: 'yellow',
+    reason: 'تدخل قوي من الخلف',
+    aiAnalysis: 'تحليل الحالة يؤكد صحة قرار البطاقة الصفراء وفقاً للمادة 12.1 من قوانين اللعبة - تدخل متهور',
+    videoEvidence: 'video-url-1',
+    recommendedCard: 'yellow',
+    ruleReference: 'المادة 12.1 - الأخطاء وسوء السلوك',
+    decisionConfidence: 0.92
+  },
+  {
+    id: '2',
+    timestamp: new Date(2025, 3, 25, 20, 30, 0),
+    player: {
+      id: '5',
+      name: 'سلطان الغنام',
+      jerseyNumber: 2,
+      team: 'النصر'
+    },
+    cardType: 'yellow',
+    reason: 'اعتراض على قرار الحكم',
+    aiAnalysis: 'تحليل الفيديو يظهر اعتراض واضح على قرار الحكم مما يستوجب البطاقة الصفراء',
+    videoEvidence: 'video-url-2',
+    recommendedCard: 'yellow',
+    ruleReference: 'المادة 12.2 - سوء السلوك',
+    decisionConfidence: 0.88
+  },
+  {
+    id: '3',
+    timestamp: new Date(2025, 3, 25, 20, 45, 0),
+    player: {
+      id: '6',
+      name: 'عبدالله مادو',
+      jerseyNumber: 5,
+      team: 'النصر'
+    },
+    cardType: 'red',
+    reason: 'تدخل عنيف يعرض سلامة المنافس للخطر',
+    aiAnalysis: 'تحليل متعدد الزوايا يؤكد خطورة التدخل واستحقاق البطاقة الحمراء وفقاً لقوانين اللعبة',
+    videoEvidence: 'video-url-3',
+    recommendedCard: 'red',
+    ruleReference: 'المادة 12.3 - اللعب العنيف',
+    decisionConfidence: 0.96
+  }
+];
+
 const mockMatch: Match = {
   id: '1',
   homeTeam: mockHomeTeam,
@@ -29,11 +83,11 @@ const mockMatch: Match = {
   date: new Date(),
   venue: 'ملعب الملك فهد الدولي',
   competition: 'دوري روشن السعودي',
-  incidents: [],
+  incidents: mockIncidents,
   status: 'ongoing',
   score: {
-    homeScore: 0,
-    awayScore: 0,
+    homeScore: 1,
+    awayScore: 1,
   },
   varAnalysis: {
     isReviewing: false,
@@ -41,6 +95,15 @@ const mockMatch: Match = {
     recommendedDecision: null,
     confidence: 0,
     ruleReference: null
+  },
+  finalReport: {
+    summary: '',
+    incidentReviews: mockIncidents,
+    refereePerformance: {
+      accuracy: 92,
+      timeEfficiency: 88,
+      consistencyScore: 90
+    }
   }
 };
 
