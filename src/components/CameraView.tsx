@@ -11,6 +11,7 @@ const CameraView: React.FC = () => {
   const [detectionMode, setDetectionMode] = useState<'face' | 'jersey'>('face');
   const [processingFrame, setProcessingFrame] = useState<boolean>(false);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
+  const [loadingCamera, setLoadingCamera] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -120,11 +121,14 @@ const CameraView: React.FC = () => {
     setCameraReady(false);
     setCameraActive(false);
     setPermissionDenied(false);
+    setLoadingCamera(false);
   };
   
   const toggleCamera = async () => {
     if (!cameraActive) {
       try {
+        setLoadingCamera(true);
+        
         // Use navigator.mediaDevices.getUserMedia with fallback options
         const constraints = { 
           video: { 
@@ -143,6 +147,14 @@ const CameraView: React.FC = () => {
           setCameraReady(true);
           setCameraActive(true);
           setPermissionDenied(false);
+          
+          // Show success toast
+          toast({
+            title: language === 'ar' ? 'تم تفعيل الكاميرا' : 'Camera Activated',
+            description: language === 'ar' 
+              ? 'الكاميرا جاهزة للاستخدام' 
+              : 'Camera is ready to use',
+          });
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
@@ -158,9 +170,19 @@ const CameraView: React.FC = () => {
         
         setPermissionDenied(true);
         stopCamera();
+      } finally {
+        setLoadingCamera(false);
       }
     } else {
       stopCamera();
+      
+      // Show toast when camera is deactivated
+      toast({
+        title: language === 'ar' ? 'تم إيقاف الكاميرا' : 'Camera Deactivated',
+        description: language === 'ar' 
+          ? 'تم إيقاف الكاميرا بنجاح' 
+          : 'Camera has been turned off',
+      });
     }
   };
 
@@ -213,9 +235,15 @@ const CameraView: React.FC = () => {
             variant={cameraActive ? "destructive" : "default"} 
             size="sm"
             onClick={toggleCamera}
+            disabled={loadingCamera}
             className={cameraActive ? "bg-referee-red" : ""}
           >
-            {cameraActive ? (
+            {loadingCamera ? (
+              <div className="flex items-center">
+                <span className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></span>
+                {language === 'ar' ? 'جاري التحميل' : 'Loading...'}
+              </div>
+            ) : cameraActive ? (
               <>
                 <PauseCircle className="mr-2" size={16} />
                 {translations.deactivate[language]}
@@ -256,7 +284,7 @@ const CameraView: React.FC = () => {
         ) : (
           <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-referee-blue bg-opacity-30">
             <Camera size={64} className="text-gray-400 opacity-50 mb-4" />
-            {permissionDenied && (
+            {permissionDenied ? (
               <div className="text-center px-4 py-2 bg-red-900 bg-opacity-70 rounded-md max-w-xs mx-auto">
                 <p className="text-sm text-white">
                   {language === 'ar' 
@@ -267,6 +295,14 @@ const CameraView: React.FC = () => {
                   {language === 'ar' 
                     ? 'يرجى تمكين الكاميرا من إعدادات المتصفح' 
                     : 'Please enable camera in browser settings'}
+                </p>
+              </div>
+            ) : (
+              <div className="text-center px-4">
+                <p className="text-sm text-white">
+                  {language === 'ar' 
+                    ? 'انقر على زر التفعيل لتشغيل الكاميرا' 
+                    : 'Click activate button to turn on camera'}
                 </p>
               </div>
             )}
