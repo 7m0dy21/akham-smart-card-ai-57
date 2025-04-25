@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import MatchDetails from '../components/MatchDetails';
 import IncidentHistory from '../components/IncidentHistory';
 import PlayerRecognition from '../components/PlayerRecognition';
+import CardControls from '../components/CardControls';
 import CameraView from '../components/CameraView';
 import VarScreen from '../components/VarScreen';
 import FinalReportDialog from '../components/FinalReportDialog';
@@ -29,8 +30,9 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 space-y-4">
               <PlayerRecognition />
+              <CardControls />
             </div>
             
             <div className="md:col-span-2 space-y-4">

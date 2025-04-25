@@ -3,15 +3,18 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Camera, Power, PauseCircle, User, SquareUser } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const CameraView: React.FC = () => {
   const { language, translations, cameraActive, setCameraActive } = useAppContext();
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [detectionMode, setDetectionMode] = useState<'face' | 'jersey'>('face');
   const [processingFrame, setProcessingFrame] = useState<boolean>(false);
+  const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const { toast } = useToast();
   
   // Handle camera frame processing
   const processVideoFrame = () => {
@@ -116,27 +119,44 @@ const CameraView: React.FC = () => {
     }
     setCameraReady(false);
     setCameraActive(false);
+    setPermissionDenied(false);
   };
   
   const toggleCamera = async () => {
     if (!cameraActive) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        // Use navigator.mediaDevices.getUserMedia with fallback options
+        const constraints = { 
           video: { 
             facingMode: 'environment',
             width: { ideal: 1280 },
             height: { ideal: 720 }
           }
-        });
+        };
+        
+        // First try to get camera
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           streamRef.current = stream;
           setCameraReady(true);
           setCameraActive(true);
+          setPermissionDenied(false);
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
+        
+        // Show user-friendly toast message
+        toast({
+          title: language === 'ar' ? 'خطأ في الكاميرا' : 'Camera Error',
+          description: language === 'ar' 
+            ? 'يرجى السماح بالوصول للكاميرا من إعدادات المتصفح' 
+            : 'Please allow camera access in your browser settings',
+          variant: 'destructive',
+        });
+        
+        setPermissionDenied(true);
         stopCamera();
       }
     } else {
@@ -234,8 +254,22 @@ const CameraView: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-referee-blue bg-opacity-30">
-            <Camera size={64} className="text-gray-400 opacity-50" />
+          <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-referee-blue bg-opacity-30">
+            <Camera size={64} className="text-gray-400 opacity-50 mb-4" />
+            {permissionDenied && (
+              <div className="text-center px-4 py-2 bg-red-900 bg-opacity-70 rounded-md max-w-xs mx-auto">
+                <p className="text-sm text-white">
+                  {language === 'ar' 
+                    ? 'تم رفض صلاحية الوصول للكاميرا' 
+                    : 'Camera permission denied'}
+                </p>
+                <p className="text-xs mt-1 text-gray-300">
+                  {language === 'ar' 
+                    ? 'يرجى تمكين الكاميرا من إعدادات المتصفح' 
+                    : 'Please enable camera in browser settings'}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
