@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '@/components/ui/card';
 import { Scan, User, ScanFace, Shirt, Loader2 } from 'lucide-react';
 import { Player } from '../types';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const PlayerRecognition: React.FC = () => {
   const { 
@@ -21,7 +20,6 @@ const PlayerRecognition: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [confidence, setConfidence] = useState(0);
   
-  // Simulate scan animation
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -31,7 +29,6 @@ const PlayerRecognition: React.FC = () => {
           if (prev >= 100) {
             clearInterval(interval);
             setIsScanning(false);
-            // Random player recognition
             recognizeRandomPlayer();
             return 0;
           }
@@ -47,7 +44,6 @@ const PlayerRecognition: React.FC = () => {
     };
   }, [isScanning]);
 
-  // Simulate player recognition with scanning animation
   const startScanningProcess = () => {
     if (!cameraActive) {
       toast({
@@ -61,13 +57,16 @@ const PlayerRecognition: React.FC = () => {
     if (isScanning) return;
     
     setIsScanning(true);
+    toast({
+      title: language === 'ar' ? 'جاري التعرف' : 'Scanning',
+      description: language === 'ar' ? 'جاري تحليل الصورة...' : 'Analyzing image...',
+    });
     
     if (recognizedPlayer) {
       setRecognizedPlayer(null);
     }
   };
   
-  // Mock function to simulate player recognition
   const recognizeRandomPlayer = () => {
     if (!cameraActive) return;
     
@@ -91,7 +90,7 @@ const PlayerRecognition: React.FC = () => {
   
   const PlayerCard = ({ player }: { player: Player }) => {
     return (
-      <div className="flex items-center p-3 bg-black bg-opacity-40 rounded-lg">
+      <div className="flex items-center p-3 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-50 transition-all duration-200">
         <div className={`rounded-full p-2 mr-3 ${player.team === 'الهلال' ? 'bg-referee-blue' : 'bg-referee-red'}`}>
           <User size={24} />
         </div>
@@ -117,9 +116,9 @@ const PlayerRecognition: React.FC = () => {
         <button 
           onClick={startScanningProcess}
           disabled={!cameraActive || isScanning}
-          className={`p-2 rounded-full ${
+          className={`p-2 rounded-full transition-all duration-200 ${
             cameraActive && !isScanning
-              ? 'bg-referee-yellow text-black hover:bg-yellow-600' 
+              ? 'bg-referee-yellow text-black hover:bg-yellow-600 hover:scale-105' 
               : 'bg-gray-700 text-gray-400'
           }`}
         >
@@ -156,7 +155,7 @@ const PlayerRecognition: React.FC = () => {
           onClick={cameraActive ? startScanningProcess : undefined}
           className={`
             h-20 flex items-center justify-center rounded-lg border-2 border-dashed 
-            ${cameraActive ? 'border-referee-yellow cursor-pointer recognition-box' : 'border-gray-700'}
+            ${cameraActive ? 'border-referee-yellow cursor-pointer recognition-box hover:border-yellow-500' : 'border-gray-700'}
           `}
         >
           <div className="text-center text-sm text-gray-400">
